@@ -1,27 +1,30 @@
 from flask import app
 
 class Subscription():
-    def __init__(self, order_id, email, phone, created_at, sku):
-        self.order_id = order_id
+    def __init__(self, product_name, email, phone, language):
+        self.product_name = product_name
         self.email = email
         self.phone = phone
-        self.created_at = created_at
-        self.sku = sku.replace('-', '')
-
+        self.language = language
 
     def create(self, db):
-        db.execute('CREATE TABLE IF NOT EXISTS ' + self.sku + ' (order_id bigint PRIMARY KEY, email text, phone text, created_at date)')
-        db.execute( "INSERT INTO " + self.sku + " (order_id, email, phone, created_at) " +
+        db.execute('CREATE TABLE IF NOT EXISTS ' + self.product_name + ' (phone text PRIMARY KEY, email text, active boolean, language text)')
+        db.execute( "INSERT INTO " + self.product_name + " (phone, email, active, language) " +
                     "VALUES (" +  
-                    str(self.order_id) + ",'" +
+                    str(self.phone) + ",'" +
                     str(self.email) + "','" +
-                    str(self.phone) + "','" +
-                    str(self.created_at.split('T')[0]) +
+                    str(True) + "','" +
+                    str(self.language) +
                     "')")
-        
+
         return 200
 
-    def delete_object(self):
+    def cancel(self, db):
+        db.execute("UPDATE " + self.product_name + " SET active = 'False' WHERE phone = '" + self.phone + "';")
+        return 200
+
+    def reactivate(self, db):
+        db.execute("UPDATE " + self.product_name + " SET active = 'True' WHERE phone = '" + self.phone + "';")
         return 200
 
 

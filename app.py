@@ -6,6 +6,7 @@ import hmac
 import hashlib
 import base64
 import json
+import re
 
 SECRET = b'08391bb61db3c364d79aaa912d54217daa05ca740b3638c59de074a9fbedf978'
 app = Flask(__name__)
@@ -33,6 +34,9 @@ def verify_webhook(data, hmac_header):
 
 #     return ('Webhook verified', 200)
 
+# This function is depricated but kept for reference
+#
+# Function used to verify and handle Shopify requests
 @app.route('/order-create', methods=['POST', 'GET'])
 def order_create():
     data = request.get_data()
@@ -59,19 +63,82 @@ def order_create():
 
     return ('Webhook verified', 200)
 
+# Create subscription from Zapier webhook
 @app.route('/subscription-start', methods=['POST'])
 def subscription_start():
-    print(request.get_json())
+    content = request.get_json()
+
+    # Get user info
+    person = content['person']
+    email = person['$email']
+    phone = person['$phone_number'].replace('+', '')
+
+    # Get Item info
+    items = content['event_properties']['Items']
+    products = re.findall("'ProductName': '[\w?\d?\-?\s?]+', ", items)
+    for product in products:
+        product = product.split(':')[1].replace(',', '').replace("'", '').strip()
+        # Splits product into table_name (product name) and language
+        product_elements = product.split(' - ')
+        table_name = product_elements[0].strip().replace('-', '_').replace(' ', '_')
+        language = product_elements[1].strip()
+
+        # Create subscription object and save to db
+        subscription = Subscription.Subscription(table_name, email, phone, language)
+        subscription.create(db)
+
     return ('Webhook verified', 200)
 
+# Cancel subscription from Zapier webhook
 @app.route('/subscription-cancel', methods=['POST'])
 def subscription_cancel():
-    print(request.get_json())
+    content = request.get_json()
+
+    # Get user info
+    person = content['person']
+    email = person['$email']
+    phone = person['$phone_number'].replace('+', '')
+
+    # Get Item info
+    items = content['event_properties']['Items']
+    products = re.findall("'ProductName': '[\w?\d?\-?\s?]+', ", items)
+    for product in products:
+        product = product.split(':')[1].replace(',', '').replace("'", '').strip()
+        # Splits product into table_name (product name) and language
+        product_elements = product.split(' - ')
+        table_name = product_elements[0].strip().replace('-', '_').replace(' ', '_')
+        language = product_elements[1].strip()
+
+        # Create subscription object and save to db
+        subscription = Subscription.Subscription(table_name, email, phone, language)
+        subscription.cancel(db)
+
     return ('Webhook verified', 200)
 
+# Reactivate subscription from zapier webhook
 @app.route('/subscription-reactivate', methods=['POST'])
 def subscription_reactivate():
-    print(request.get_json())
+    content = request.get_json()
+
+    # Get user info
+    person = content['person']
+    email = person['$email']
+    phone = person['$phone_number'].replace('+', '')
+
+    # Get Item info
+    items = content['event_properties']['Items']
+    products = re.findall("'ProductName': '[\w?\d?\-?\s?]+', ", items)
+    for product in products:
+        product = product.split(':')[1].replace(',', '').replace("'", '').strip()
+        # Splits product into table_name (product name) and language
+        product_elements = product.split(' - ')
+        table_name = product_elements[0].strip().replace('-', '_').replace(' ', '_')
+        language = product_elements[1].strip()
+
+        # Create subscription object and save to db
+        subscription = Subscription.Subscription(table_name, email, phone, language)
+        subscription.reactivate(db)
+
     return ('Webhook verified', 200)
 
 if __name__ == "__main__":
