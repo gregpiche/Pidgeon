@@ -44,8 +44,10 @@ def subscription_start():
         # Splits product into table_name (product name) and language
         product_elements = product.split(' - ')
         table_name = product_elements[0].strip().replace('-', '_').replace(' ', '_')
-        language = product_elements[1].strip()
-
+        try:
+            language = product_elements[1].strip()
+        except:
+            language = 'English'
         # Create subscription object and save to db
         subscription = Subscription.Subscription(table_name, email, phone, language)
         subscription.create(db)
