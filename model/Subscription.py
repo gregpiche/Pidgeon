@@ -16,7 +16,8 @@ class Subscription():
                     str(True) + "','" +
                     str(self.language) +
                     "')")
-
+        
+        print('Subscription created succesfully')
         return 200
 
     def cancel(self, db):

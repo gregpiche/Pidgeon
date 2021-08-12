@@ -1,70 +1,33 @@
 from flask import Flask, request, abort
 from model import Subscription
 from sqlalchemy import create_engine
-import json
-import hmac
-import hashlib
-import base64
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_httpauth import HTTPBasicAuth
+from twilio.rest import Client 
+import os
 import json
 import re
 
-SECRET = b'08391bb61db3c364d79aaa912d54217daa05ca740b3638c59de074a9fbedf978'
 app = Flask(__name__)
-db_string = 'postgresql://ggxrscfguwscxn:2f81ffcdf8567f72c82592fc0d96e4d7a2c94e47d725fb2ed56536c06cc96481@ec2-3-215-57-87.compute-1.amazonaws.com:5432/du9obpspmfelf'
+auth = HTTPBasicAuth()
+db_string = os.getenv('DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = create_engine(db_string)
 
-def verify_webhook(data, hmac_header):
-    digest = hmac.new(SECRET, data, hashlib.sha256).digest()
-    computed_hmac = base64.b64encode(digest)
+users = {
+    os.getenv('API_USERNAME'): generate_password_hash(os.getenv('API_PASS'))
+}
 
-    return hmac.compare_digest(computed_hmac, hmac_header.encode('UTF-8'))
-
-# This is standard functionality to verify incoming requests
-#
-# @app.route('/webhook', methods=['POST'])
-# def handle_webhook():
-#     data = request.get_data()
-#     verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-
-#     if not verified:
-#         abort(401)
-#     # process webhook payload
-#     # ...
-
-#     return ('Webhook verified', 200)
-
-# This function is depricated but kept for reference
-#
-# Function used to verify and handle Shopify requests
-@app.route('/order-create', methods=['POST', 'GET'])
-def order_create():
-    data = request.get_data()
-    verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-
-    if not verified:
-        abort(401)
-
-    if request.method == 'POST':
-        content = request.get_json()
-        order_id = content['id']
-        email = content['email']
-        phone = content['billing_address']['phone']
-        created_at = content['created_at']
-        line_items = content['line_items']
-
-        for item in line_items:
-            model = Order.Order(order_id, email, phone, created_at, item['sku'])
-            model.create(db)
-        
-        #json_object = json.loads(json_data)
-        #json_formatted_str = json.dumps(request.get_json, indent=2)
-        
-
-    return ('Webhook verified', 200)
+# Verify API using basic auth
+@auth.verify_password
+def verify_password(username, password):
+    if username in users:
+        return check_password_hash(users.get(username), password)
+    return False
 
 # Create subscription from Zapier webhook
 @app.route('/subscription-start', methods=['POST'])
+@auth.login_required
 def subscription_start():
     content = request.get_json()
 
@@ -87,10 +50,26 @@ def subscription_start():
         subscription = Subscription.Subscription(table_name, email, phone, language)
         subscription.create(db)
 
+        # Find your Account SID and Auth Token at twilio.com/console
+        # and set the environment variables. See http://twil.io/secure
+        account_sid = os.getenv('TWILIO_ACCOUNT_SID')
+        print('Before SID print')
+        print('SID: ' + str(account_sid))
+        auth_token = os.getenv('TWILIO_AUTH_TOK')
+        client = Client(account_sid, auth_token) 
+        
+        message = client.messages.create(
+                                    body='Thank you for subscribing to the Pidgeon alert. All alerts will be sent from this number. To manage your account, use magic link sent to your email or via your Pidgeon account.',
+                                    from_=os.getenv('TWILIO_NUMBER'),         
+                                    to='+' + phone 
+                                ) 
+        
+        print(message.sid)
     return ('Webhook verified', 200)
 
 # Cancel subscription from Zapier webhook
 @app.route('/subscription-cancel', methods=['POST'])
+@auth.login_required
 def subscription_cancel():
     content = request.get_json()
 
@@ -117,6 +96,7 @@ def subscription_cancel():
 
 # Reactivate subscription from zapier webhook
 @app.route('/subscription-reactivate', methods=['POST'])
+@auth.login_required
 def subscription_reactivate():
     content = request.get_json()
 
