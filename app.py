@@ -12,6 +12,7 @@ app = Flask(__name__)
 auth = HTTPBasicAuth()
 db_string = os.getenv('DATABASE_URI')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+print('db_string: ' + str(db_string))
 db = create_engine(db_string)
 
 users = {
