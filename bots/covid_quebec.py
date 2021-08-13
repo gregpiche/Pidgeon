@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from twilio.rest import Client
 from dotenv import load_dotenv 
+import datetime
 import time
 import locale
 import requests
@@ -131,7 +132,17 @@ def send_sms(body):
             print('FAILED ALERT | Message failed to send to ' + row[2] + '\n')
 
 def main():
+    # stop scheduler if it is weekend as gvt doesn't update website
+    day = datetime.datetime.today().weekday()
+    print('Day: ' + str(day))
+    if day == 5 or day == 6:
+        print('Today is a weekend')
+        exit()
+    
+    # retrieve data from gvt website
     body = get_data()
+
+    # send SMS
     send_sms(body)
 
 if __name__ == "__main__":
