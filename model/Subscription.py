@@ -48,5 +48,3 @@ class Subscription():
         db.execute("UPDATE " + self.product_name + " SET active = 'True', cancelDate=null WHERE phone = '" + self.phone + "';")
         print('Subscription reactivated successfuly')
         return 200
-
-
