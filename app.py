@@ -81,8 +81,13 @@ def subscription_cancel():
 
     # Get user info
     person = content['person']
+    first_name = person['$first_name']
     email = person['$email']
     phone = person['$phone_number'].replace('+', '')
+    activation_date = person['created']
+    cancel_date = None
+    is_active = True
+    magic_link = content['event_properties']['SubscriptionMagicUrl']
 
     # Get Item info
     items = content['event_properties']['Items']
@@ -95,7 +100,7 @@ def subscription_cancel():
         language = product_elements[1].strip()
 
         # Create subscription object and save to db
-        subscription = Subscription.Subscription(table_name, email, phone, language)
+        subscription = Subscription.Subscription(table_name, email, phone, language, first_name, magic_link, is_active, activation_date, cancel_date)
         subscription.cancel(db)
 
     return ('Webhook verified', 200)
@@ -108,8 +113,13 @@ def subscription_reactivate():
 
     # Get user info
     person = content['person']
+    first_name = person['$first_name']
     email = person['$email']
     phone = person['$phone_number'].replace('+', '')
+    activation_date = person['created']
+    cancel_date = None
+    is_active = True
+    magic_link = content['event_properties']['SubscriptionMagicUrl']
 
     # Get Item info
     items = content['event_properties']['Items']
@@ -122,7 +132,7 @@ def subscription_reactivate():
         language = product_elements[1].strip()
 
         # Create subscription object and save to db
-        subscription = Subscription.Subscription(table_name, email, phone, language)
+        subscription = Subscription.Subscription(table_name, email, phone, language, first_name, magic_link, is_active, activation_date, cancel_date)
         subscription.reactivate(db)
 
     return ('Webhook verified', 200)

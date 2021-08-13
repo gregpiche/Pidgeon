@@ -1,4 +1,6 @@
 from flask import app
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 class Subscription():
     def __init__(self, product_name, email, phone, language, first_name, magic_link, is_active, activation_date, cancel_date):
@@ -31,11 +33,20 @@ class Subscription():
         return 200
 
     def cancel(self, db):
-        db.execute("UPDATE " + self.product_name + " SET active = 'False' WHERE phone = '" + self.phone + "';")
+        results = db.execute("SELECT activationDate, cancelDate FROM " + self.product_name + " WHERE phone = '" + self.phone + "' LIMIT 1;")
+        for row in results:
+            activationDate = row[0]
+            print(activationDate)
+        
+        cancellation_date = activationDate + relativedelta(months=1)
+        print(cancellation_date)
+        db.execute("UPDATE " + self.product_name + " SET isActive = 'False', cancelDate='"+ str(cancellation_date) + "' WHERE phone = '" + self.phone + "';")
+        print('Subscription canceled successfuly')
         return 200
 
     def reactivate(self, db):
-        db.execute("UPDATE " + self.product_name + " SET active = 'True' WHERE phone = '" + self.phone + "';")
+        db.execute("UPDATE " + self.product_name + " SET active = 'True', cancelDate=null WHERE phone = '" + self.phone + "';")
+        print('Subscription reactivated successfuly')
         return 200
 
 

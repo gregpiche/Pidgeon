@@ -98,10 +98,10 @@ def send_sms(body):
     db = create_engine(db_string)
 
     # Retrieve relevant data from table (ENGLISH)
-    result_eng = db.execute("SELECT phone, firstName, email FROM covid_19_quebec WHERE isActive=True AND (CURRENT_DATE<cancelDate OR cancelDate IS NULL) AND language='English'")
+    result_eng = db.execute("SELECT phone, firstName, email FROM covid_19_quebec WHERE (CURRENT_DATE<cancelDate OR cancelDate IS NULL) AND language='English'")
 
     # Retrieve relevant data from table (FRENCH)
-    result_fr = db.execute("SELECT phone, firstName, email FROM covid_19_quebec WHERE isActive=True AND (CURRENT_DATE<cancelDate OR cancelDate IS NULL) AND language='French'")
+    result_fr = db.execute("SELECT phone, firstName, email FROM covid_19_quebec WHERE (CURRENT_DATE<cancelDate OR cancelDate IS NULL) AND language='French'")
 
     # Find your Account SID and Auth Token at twilio.com/console
     # and set the environment variables. See http://twil.io/secure
