@@ -8,11 +8,11 @@ import os
 import json
 import re
 
+# Basic app initializations
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 db_string = os.getenv('DATABASE_URI')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-print('db_string: ' + str(db_string))
 db = create_engine(db_string)
 
 users = {
@@ -34,8 +34,13 @@ def subscription_start():
 
     # Get user info
     person = content['person']
+    first_name = person['$first_name']
     email = person['$email']
     phone = person['$phone_number'].replace('+', '')
+    activation_date = person['created']
+    cancel_date = None
+    is_active = True
+    magic_link = content['event_properties']['SubscriptionMagicUrl']
 
     # Get Item info
     items = content['event_properties']['Items']
@@ -50,14 +55,12 @@ def subscription_start():
         except:
             language = 'English'
         # Create subscription object and save to db
-        subscription = Subscription.Subscription(table_name, email, phone, language)
+        subscription = Subscription.Subscription(table_name, email, phone, language, first_name, magic_link, is_active, activation_date, cancel_date)
         subscription.create(db)
 
         # Find your Account SID and Auth Token at twilio.com/console
         # and set the environment variables. See http://twil.io/secure
         account_sid = os.getenv('TWILIO_ACCOUNT_SID')
-        print('Before SID print')
-        print('SID: ' + str(account_sid))
         auth_token = os.getenv('TWILIO_AUTH_TOK')
         client = Client(account_sid, auth_token) 
         
