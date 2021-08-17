@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime as dt
 from sqlalchemy import select 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -59,9 +59,9 @@ def get_data():
         # Get doses
         doses = re.search(pattern, re.search('\d*,*\d+.doses administered are added', text).group()).group()
         print('Doses: ' + doses )
-    
+
         # Get date with proper format in English
-        date_eng = custom_strftime('%B {S}, %Y', datetime.now())
+        date_eng = custom_strftime('%B {S}, %Y', dt.now())
 
         # Get date with proper format in French
         date_fr = get_date_french()
