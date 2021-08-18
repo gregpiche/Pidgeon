@@ -45,7 +45,7 @@ def get_data():
         print('Cases: ' + cases)
 
         # Get deaths
-        death = re.search(pattern, re.search('\d*,*\d+.new deaths', text).group()).group()
+        death = re.search(pattern, re.search('\d*,*\d+.new.death', text).group()).group()
         print('Death: ' + death)
 
         # Get hospitalizations
