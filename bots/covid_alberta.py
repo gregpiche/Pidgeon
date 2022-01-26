@@ -12,8 +12,8 @@ import requests
 import re
 import os
 
-from utils.sms import send_sms 
-from utils.database import get
+from helpers.sms import send_sms
+from helpers.database import get
 
 # load the environment variables from .env file
 load_dotenv()

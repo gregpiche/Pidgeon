@@ -1,9 +1,8 @@
-from email.quoprimime import quote
 import requests
 import json
 import os
-from utils.sms import send_sms 
-from utils.database import get
+from helpers.sms import send_sms
+from helpers.database import get
 
 # Build request
 url = "https://uncovered-treasure-v1.p.rapidapi.com/today"
