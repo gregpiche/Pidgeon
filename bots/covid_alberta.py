@@ -12,6 +12,9 @@ import requests
 import re
 import os
 
+from utils.sms import send_sms 
+from utils.database import get
+
 # load the environment variables from .env file
 load_dotenv()
 
@@ -75,32 +78,6 @@ def get_data():
     else:
         return ConnectionError
 
-# Used to get users from db and send SMS
-def send_sms(body):
-    # an Engine, which the Session will use for connection resources
-    db_string = os.getenv('DATABASE_URI')
-    db = create_engine(db_string)
-
-    # Retrieve relevant data from table (ENGLISH)
-    result = db.execute("SELECT phone, firstName, email FROM covid_19_alberta WHERE CURRENT_DATE<cancelDate OR cancelDate IS NULL")
-
-    # Find your Account SID and Auth Token at twilio.com/console
-    # and set the environment variables. See http://twil.io/secure
-    account_sid = os.getenv('TWILIO_ACCOUNT_SID')
-    auth_token = os.getenv('TWILIO_AUTH_TOK')
-    twilio_num = os.getenv('TWILIO_NUMBER')
-
-    client = Client(account_sid, auth_token) 
-
-    for row in result:
-        print(row)
-        try:
-            message = client.messages.create(body=body, from_=twilio_num, to='+' + row[0])
-            print('Message sent to: ' + row[0] + ' for ' + row[2])
-            print('SID: ' + message.sid + '\n')
-        except:
-            print('FAILED ALERT | Message failed to send to ' + row[2] + '\n')
-
 def main():
     # stop scheduler if it is weekend as gvt doesn't update website
     day = datetime.datetime.today().weekday()
@@ -112,8 +89,11 @@ def main():
     # retrieve data from gvt website
     body = get_data()
 
+    # Retrieve users from database
+    users = get('covid_19_alberta')
+
     # send SMS
-    send_sms(body)
+    send_sms(body, users)
 
 if __name__ == "__main__":
     main()
