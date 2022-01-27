@@ -19,10 +19,10 @@ response = json.loads(response.text)['results'][0]
 # Parse response
 context = response['context']
 quote = response['text']
-body = context + '\n' + quote
+body = quote + '\n' + context
 print(body)
 
-users = get('bible_quote')
+users = get('daily_bible_quotes')
 
 # Send SMS
 send_sms(body, users)

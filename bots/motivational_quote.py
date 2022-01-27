@@ -19,7 +19,7 @@ body = response.text
 print(body)
 
 #users = get('motivational_quote')
-users = [['15142443683', 'Greg', 'shoppidgeon@gamil.com']]
+users = get('motivational_quotes')
 
 # Send SMS
 send_sms(body, users)
