@@ -10,7 +10,7 @@ payload = "{\n    \"key1\": \"value\",\n    \"key2\": \"value\"\n}"
 headers = {
     'content-type': "application/json",
     'x-rapidapi-host': "motivational-quotes1.p.rapidapi.com",
-    'x-rapidapi-key': "76ee81f4b4msh8170b12f240f205p18289ajsn72071473c289"
+    'x-rapidapi-key': os.getenv('MOTIVATIONAL_KEY')
     }
 
 response = requests.request("POST", url, data=payload, headers=headers)
