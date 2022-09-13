@@ -1,6 +1,8 @@
 # Pidgeon
 
-The premise of this project is was to allow users to subscribe to a text bot (will be referred to as an ***"alert"*** in documentation) and receive daily text messages with information relevant to them. This is an entire fullstack CRUD project using multiple different software systems to function. 
+The premise of this project is was to allow users to subscribe to a text bot (will be referred to as an ***"alert"*** in documentation) and receive daily text messages with information relevant to them. This is an entire fullstack CRUD project using multiple different software systems to function. The initial focus was around sharing COVID-19 daily statistics updates. 
+
+<img width=20% src=https://user-images.githubusercontent.com/46686623/190029257-3e7c9a08-b140-4f3b-be8c-51143b4ffdad.png>
 
 ## How it works
 
@@ -42,4 +44,10 @@ I will give explanation for certain design descisions as it might not be obvious
 
 ## Screenshots
 
-To be added shortly.
+Screenshots below are of the Pidgeon Shopify store. I did all designs using Figma. 
+
+<img width="1512" alt="Screen Shot 2022-09-13 at 7 34 01 PM" src="https://user-images.githubusercontent.com/46686623/190029042-f96465a8-4f65-44dc-bc88-de593d196bff.png">
+
+<img width="1504" alt="Screen Shot 2022-09-13 at 7 34 46 PM" src="https://user-images.githubusercontent.com/46686623/190029048-427a1ec1-677c-4b58-af5f-c48923cd9fca.png">
+
+<img width="1471" alt="Screen Shot 2022-09-13 at 7 35 40 PM" src="https://user-images.githubusercontent.com/46686623/190029059-f0d8cd8d-d8d4-428e-b002-d7e6d95fdc96.png">
